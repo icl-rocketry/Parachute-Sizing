@@ -22,3 +22,7 @@ Application to calculate the parachute diameter required for a given mass and de
 4. **Plot Description**:
    - **Blue Curve**: Required parachute diameter for the specified mass range.
    - **Dashed Black Lines**: Standard Rocketman parachute sizes with labels in inches.
+
+## Output
+
+![[example_sizing.png]]
