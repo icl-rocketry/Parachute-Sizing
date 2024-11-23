@@ -25,4 +25,4 @@ Application to calculate the parachute diameter required for a given mass and de
 
 ## Output
 
-![[example_sizing.png]]
+![Example Sizing](example_sizing.png)
