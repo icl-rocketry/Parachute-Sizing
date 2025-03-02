@@ -48,9 +48,9 @@ def update_plot():
 
         # Add dashed lines for parachute sizes and their labels
         for size, label in zip(valid_sizes, valid_labels):
-            ax.axhline(size, color='black', linestyle='--', linewidth=0.5)
+            ax.axhline(size, color='black', linestyle='--', linewidth=0.3)
             ax.text(max_mass + 0.5, size, f"{label} in", 
-                    verticalalignment='center', fontsize=8, color='black')
+                    verticalalignment='center', fontsize=4, color='black')
 
         # Plot main curve
         ax.plot(masses, diameters, color='xkcd:dark blue', linestyle='-')
@@ -60,18 +60,18 @@ def update_plot():
         ax.set_ylim(min(diameters) - 0.1, max(diameters) + 0.1)
 
         # Set labels and title
-        ax.set_xlabel('Rocket Mass [kg]')
-        ax.set_ylabel('Parachute Diameter [m]')
-        ax.set_title(f'Descent Velocity: {v_desc} m/s')
+        ax.set_xlabel('Rocket Mass [kg]', fontsize=4)
+        ax.set_ylabel('Parachute Diameter [m]', fontsize=4)
+        ax.set_title(f'Descent Velocity: {v_desc} m/s', fontsize=6)
 
         # Add gridlines and ticks
-        ax.grid(which='major', color='xkcd:dark blue', alpha=0.2, linewidth=0.6)
-        ax.grid(which='minor', color='xkcd:dark blue', alpha=0.1, linewidth=0.2)
+        ax.grid(which='major', color='xkcd:dark blue', alpha=0.2, linewidth=0.2)
+        ax.grid(which='minor', color='xkcd:dark blue', alpha=0.1, linewidth=0.1)
         ax.minorticks_on()
-        ax.tick_params(which='both', direction='in', top=True, right=True)
+        ax.tick_params(labelsize=4, which='both', direction='in', top=True, right=True, width=0.3)
 
         # Redraw the canvas
-        canvas.draw()
+        canvas.draw_idle()
 
     except ValueError:
         # Handle invalid input
@@ -81,21 +81,43 @@ def update_plot():
 root = tk.Tk()
 root.title("Parachute Sizing")
 
-# Input fields
+# Create a frame for the canvas and scrollbar
+frame = ttk.Frame(root)
+frame.grid(row=0, column=0, sticky="nsew")
+
+# Create a canvas and add a scrollbar
+canvas_frame = tk.Canvas(frame)
+scrollbar = ttk.Scrollbar(frame, orient="vertical", command=canvas_frame.yview)
+canvas_frame.configure(yscrollcommand=scrollbar.set)
+
+# Pack the canvas and scrollbar
+canvas_frame.pack(side="left", fill="both", expand=True)
+scrollbar.pack(side="right", fill="y")
+
+# Create another frame inside the canvas
+inner_frame = ttk.Frame(canvas_frame)
+canvas_frame.create_window((0, 0), window=inner_frame, anchor="nw")
+
+# Update the scroll region when the inner frame changes size
+def on_frame_configure(event):
+    canvas_frame.configure(scrollregion=canvas_frame.bbox("all"))
+
+inner_frame.bind("<Configure>", on_frame_configure)
+
+# Create input labels and entry widgets
 inputs = [
     ("Minimum Mass (kg)", "40.0"),
-    ("Maximum Mass (kg)", "80.0"),
+    ("Maximum Mass (kg)", "100.0"),
     ("Descent Velocity (m/s)", "9.0"),
     ("Drag Coefficient", "2.2")
 ]
 
-# Create input labels and entry widgets
 entries = {}
 for i, (label_text, default) in enumerate(inputs):
-    ttk.Label(root, text=label_text).grid(row=i, column=0, padx=5, pady=2, sticky="w")
-    entry = ttk.Entry(root)
+    ttk.Label(inner_frame, text=label_text).grid(row=i, column=0, padx=5, pady=2, sticky="w")
+    entry = ttk.Entry(inner_frame)
     entry.insert(0, default)
-    entry.grid(row=i, column=1, padx=5, pady=2)
+    entry.grid(row=i, column=1, padx=5, pady=2, sticky="ew")
     entries[label_text] = entry
 
 entry_min_mass = entries["Minimum Mass (kg)"]
@@ -104,19 +126,19 @@ entry_v_desc = entries["Descent Velocity (m/s)"]
 entry_drag_coef = entries["Drag Coefficient"]
 
 # Dropdown for altitude
-ttk.Label(root, text="Apogee Altitude").grid(row=len(inputs), column=0, padx=5, pady=2, sticky="w")
-combo_altitude = ttk.Combobox(root, values=list(rho_values.keys()))
+ttk.Label(inner_frame, text="Apogee Altitude").grid(row=len(inputs), column=0, padx=5, pady=2, sticky="w")
+combo_altitude = ttk.Combobox(inner_frame, values=list(rho_values.keys()))
 combo_altitude.set("9 km")  # Default altitude
 combo_altitude.grid(row=len(inputs), column=1, padx=5, pady=2)
 
 # Plotting area
-fig, ax = plt.subplots(figsize=(6, 4), dpi=150)
+fig, ax = plt.subplots(figsize=(3, 2), dpi=150)
 canvas = FigureCanvasTkAgg(fig, master=root)
 canvas_widget = canvas.get_tk_widget()
-canvas_widget.grid(row=0, column=2, rowspan=len(inputs) + 1, padx=10, pady=10)
+canvas_widget.grid(row=0, column=2, rowspan=len(inputs) + 1, padx=10, pady=10, sticky="nsew")
 
 # Update button
-update_button = ttk.Button(root, text="Update Plot", command=update_plot)
-update_button.grid(row=len(inputs) + 1, column=1, pady=10)
+update_button = ttk.Button(inner_frame, text="Update Plot", command=update_plot)
+update_button.grid(row=len(inputs) + 1, column=1, pady=10, sticky="ew")
 
 root.mainloop()
