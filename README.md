@@ -6,7 +6,7 @@ Application to calculate the parachute diameter required for a given mass and de
 
 1. Run the script:
    ```bash
-   python parachute_diameter_calculator.py
+   python interface.py
    ```
 
 2. **Input Parameters**:
