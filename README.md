@@ -2,6 +2,13 @@
 
 Application to calculate the parachute diameter required for a given mass and descent velocity, considering varying air densities at different altitudes. 
 
+## Requirements
+
+- Python
+- Numpy
+- Matplotlib
+- Tkinter (for interface)
+
 ## Usage
 
 1. Run the script:
