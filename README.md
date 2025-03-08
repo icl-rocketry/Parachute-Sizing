@@ -21,7 +21,7 @@ Application to calculate the parachute diameter required for a given mass and de
    - **Maximum Mass (kg)**: Upper bound of the rocket mass range.
    - **Descent Velocity (m/s)**: Target descent velocity.
    - **Drag Coefficient**: Coefficient of drag for the parachute.
-   - **Apogee Altitude**: Select from 3 km, 6 km, or 9 km (air density adjusts automatically).
+   - **Altitude (km)**: Altitude at which target descent velocity should be reached (air density is calculated here).
 
 3. **Update Plot**:
    - Click the **Update Plot** button to calculate and display the results.
