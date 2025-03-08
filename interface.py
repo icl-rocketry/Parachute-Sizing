@@ -1,4 +1,3 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -6,11 +5,20 @@ import tkinter as tk
 from tkinter import ttk
 
 # Constants
-rho_values = {
-    "9 km": 0.467,  # kg/m³
-    "6 km": 0.6601,  # kg/m³
-    "3 km": 0.9093  # kg/m³
-}
+
+# implement air density as a function of altitude (like in shock loads)
+def air_density(altitude):
+    rho0 = 1.225  # Sea-level air density in kg/m^3
+    T0 = 288.15  # Sea-level standard temperature in K
+    Lapse_rate = 0.0065  # Temperature lapse rate in K/m
+    R = 287.05  # Specific gas constant for dry air in J/(kg·K)
+    g = 9.81  # m/s^2 (gravitational acceleration)
+    
+    T = T0 - Lapse_rate * altitude
+    P = rho0 * R * T0 * (1 - Lapse_rate * altitude / T0) ** (g / (R * Lapse_rate))
+    rho = P / (R * T)
+    return max(rho, 0)
+
 g = 9.81  # Gravitational acceleration (m/s²)
 
 # Rocketman parachute sizes
@@ -28,12 +36,15 @@ def update_plot():
         # Get input values
         min_mass = float(entry_min_mass.get())
         max_mass = float(entry_max_mass.get())
-        altitude = combo_altitude.get()
+        altitude = float(entry_altitude.get())
         v_desc = float(entry_v_desc.get())
         drag_coef = float(entry_drag_coef.get())
         
         # Get corresponding air density
-        rho = rho_values[altitude]
+        rho = air_density(altitude)
+        
+        # Update air density label
+        air_density_label.config(text=f"Air Density: {rho:.4f} kg/m³")
         
         # Calculate mass range and diameters
         masses = np.linspace(min_mass, max_mass, 100)
@@ -108,8 +119,9 @@ inner_frame.bind("<Configure>", on_frame_configure)
 inputs = [
     ("Minimum Mass (kg)", "40.0"),
     ("Maximum Mass (kg)", "100.0"),
-    ("Descent Velocity (m/s)", "9.0"),
-    ("Drag Coefficient", "2.2")
+    ("Descent Velocity (m/s)", "7.5"),
+    ("Drag Coefficient", "2.2"),
+    ("Altitude (km)", "0")
 ]
 
 entries = {}
@@ -124,12 +136,11 @@ entry_min_mass = entries["Minimum Mass (kg)"]
 entry_max_mass = entries["Maximum Mass (kg)"]
 entry_v_desc = entries["Descent Velocity (m/s)"]
 entry_drag_coef = entries["Drag Coefficient"]
+entry_altitude = entries["Altitude (km)"]
 
-# Dropdown for altitude
-ttk.Label(inner_frame, text="Apogee Altitude").grid(row=len(inputs), column=0, padx=5, pady=2, sticky="w")
-combo_altitude = ttk.Combobox(inner_frame, values=list(rho_values.keys()))
-combo_altitude.set("9 km")  # Default altitude
-combo_altitude.grid(row=len(inputs), column=1, padx=5, pady=2)
+# Air density label
+air_density_label = ttk.Label(inner_frame, text="Air Density: ")
+air_density_label.grid(row=len(inputs), column=0, columnspan=2, padx=5, pady=2, sticky="w")
 
 # Plotting area
 fig, ax = plt.subplots(figsize=(3, 2), dpi=150)
