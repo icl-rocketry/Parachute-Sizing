@@ -5,8 +5,15 @@ import tkinter as tk
 from tkinter import ttk
 
 # Constants
+g = 9.81  # Gravitational acceleration (m/s²)
 
-# implement air density as a function of altitude (like in shock loads)
+# Rocketman parachute sizes
+sizes_in = [24, 30, 36, 48, 60, 72, 84, 96, 108, 120, 144, 168, 192, 216, 240, 288, 360]
+sizes_m = np.array([size * 2.54e-2 for size in sizes_in])  # Convert inches to meters
+
+
+# --- Calculation Functions ---
+
 def air_density(altitude):
     rho0 = 1.225  # Sea-level air density in kg/m^3
     T0 = 288.15  # Sea-level standard temperature in K
@@ -18,12 +25,6 @@ def air_density(altitude):
     P = rho0 * R * T0 * (1 - Lapse_rate * altitude / T0) ** (g / (R * Lapse_rate))
     rho = P / (R * T)
     return max(rho, 0)
-
-g = 9.81  # Gravitational acceleration (m/s²)
-
-# Rocketman parachute sizes
-sizes_in = [24, 30, 36, 48, 60, 72, 84, 96, 108, 120, 144, 168, 192, 216, 240, 288, 360]
-sizes_m = np.array([size * 2.54e-2 for size in sizes_in])  # Convert inches to meters
 
 # Calculate diameter for which weight = drag
 def calculate_diameter(mass, drag_coef, v_desc, rho):
